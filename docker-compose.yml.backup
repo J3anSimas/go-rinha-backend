@@ -1,0 +1,19 @@
+version: "3.5"
+services:
+  db:
+    image: postgres:15
+    hostname: db
+    environment:
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_USER=admin
+      - POSTGRES_DB=rinha
+      - POSTGRES_HOS
+    ports:
+      - "5434:5432"
+    volumes:
+      - ./create.sql:/docker-entrypoint-initdb.d/create.sql
+    deploy:
+      resources:
+        limits:
+          cpus: "0.4"
+          memory: "1.8GB"
