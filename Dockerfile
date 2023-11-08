@@ -15,6 +15,7 @@ FROM scratch
 
 COPY --from=build /api /api
 
-EXPOSE 3333
+EXPOSE 3000
+EXPOSE 3001
 
 CMD ["/api"]

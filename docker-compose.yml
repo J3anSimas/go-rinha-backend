@@ -2,15 +2,15 @@ version: "3.5"
 services:
   db:
     image: postgres:15
-    hostname: db
     environment:
       - POSTGRES_PASSWORD=admin
       - POSTGRES_USER=admin
       - POSTGRES_DB=rinha
+    network_mode: host
     ports:
-      - "5434:5432"
+      - "5432:5432"
     volumes:
-      - ./create.sql:/docker-entrypoint-initdb.d/create.sql
+      - ./create.sql:/var/lib/postgresql/data
     deploy:
       resources:
         limits:
@@ -19,18 +19,16 @@ services:
 
   api01:
     build: .
-    hostname: rinha01
+    network_mode: host
     depends_on:
       - db
     environment:
+      - APP_PORT=3000
       - APP_DB_USERNAME=admin
       - APP_DB_PASSWORD=admin
       - APP_DB_NAME=rinha
-      - APP_DB_HOST=db
+      - APP_DB_HOST=localhost
       - APP_DB_PORT=5432
-      - APP_PORT=80
-    expose:
-      - "3000"
     restart: on-failure
     deploy:
       resources:
@@ -40,19 +38,16 @@ services:
 
   api02:
     build: .
-    hostname: rinha02
     depends_on:
       - db
     environment:
+      - APP_PORT=3001
       - APP_DB_USERNAME=admin
       - APP_DB_PASSWORD=admin
       - APP_DB_NAME=rinha
-      - APP_DB_HOST=db
-      - APP_PORT=80
-      - POSTGRES_HOST=db
-      - POSTGRES_PORT=5432
-    expose:
-      - "3000"
+      - APP_DB_HOST=localhost
+      - APP_DB_PORT=5432
+    network_mode: host
     restart: on-failure
     deploy:
       resources:
@@ -67,16 +62,10 @@ services:
     depends_on:
       - api01
       - api02
-    ports:
-      - "9999:9999"
+    network_mode: host
     restart: on-failure
     deploy:
       resources:
         limits:
           cpus: "0.1"
           memory: "0.2GB"
-
-networks:
-  default:
-    driver: bridge
-    name: rinha
